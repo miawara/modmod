@@ -32,8 +32,8 @@ public final class ConfigStore {
         parameterDataField.serialize(configData);
     }
 
+    @SuppressWarnings("deprecation")
     public static void load() {
-        // load elements here
         try {
             configData = new JsonParser().parse(FileManager.readConfig(FileManager.getConfigFile())).getAsJsonObject();
         } catch (Exception exception) {
@@ -55,6 +55,7 @@ public final class ConfigStore {
         }
     }
 
+    @SuppressWarnings({"deprecation"})
     public static YetAnotherConfigLib getLibConfig() {
         YetAnotherConfigLib.Builder yacl =
                 YetAnotherConfigLib.createBuilder()
@@ -67,7 +68,7 @@ public final class ConfigStore {
 
             for (Feature feature : category.getFeatures()) {
                 ArrayList<? extends ParameterDataField<?>> dataFields = feature.getParameterDataFields();
-                Option featureOption = Option.createBuilder(boolean.class)
+                Option<Boolean> featureOption = Option.createBuilder(boolean.class)
                         .name(Component.literal(feature.getName()))
                         .description(OptionDescription.createBuilder()
                                 .text(Component.literal(feature.getDescription()))

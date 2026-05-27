@@ -16,8 +16,6 @@ public class HudMatrixRegistry {
 
     public static void register(WorldRenderContext context) {
         if (getRenderHUDTickCounter() == null) return;
-        // It's crucial to copy the matrices here as they are managed by the rendering engine
-        // and can be modified or popped from the stack after this event.
         double currentFov = RenderContextHelper.getFov(getRenderHUDTickCounter().getGameTimeDeltaPartialTick(true));
 
         modelViewMatrix = new Matrix4f(RenderSystem.getModelViewMatrix());

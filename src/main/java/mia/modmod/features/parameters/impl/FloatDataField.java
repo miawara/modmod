@@ -26,6 +26,7 @@ public class FloatDataField extends ParameterDataField<Float> {
     }
 
     @Override
+    @SuppressWarnings({"deprecation"})
     public void addYACLParameter(OptionGroup.Builder featureGroup) {
         featureGroup.option(
                 Option.createBuilder(Float.class)

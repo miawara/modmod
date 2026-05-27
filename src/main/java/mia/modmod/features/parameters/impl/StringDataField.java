@@ -26,6 +26,7 @@ public class StringDataField extends ParameterDataField<String> {
     }
 
     @Override
+    @SuppressWarnings({"deprecation"})
     public void addYACLParameter(OptionGroup.Builder featureGroup) {
         featureGroup.option(
                 Option.createBuilder(String.class)

@@ -4,28 +4,23 @@ import mia.modmod.ColorBank;
 import mia.modmod.Mod;
 import mia.modmod.features.Categories;
 import mia.modmod.features.Feature;
-import mia.modmod.features.FeatureManager;
-import mia.modmod.features.impl.general.chat.SimplifiedStaffChatTags;
 import mia.modmod.features.impl.internal.permissions.PermissionTracker;
 import mia.modmod.features.listeners.ModifiableEventData;
 import mia.modmod.features.listeners.ModifiableEventResult;
 import mia.modmod.features.listeners.impl.AlwaysEnabled;
 import mia.modmod.features.listeners.impl.ChatEventListener;
 import mia.modmod.features.listeners.impl.PacketListener;
-import mia.modmod.features.listeners.impl.TickEvent;
 import mia.modmod.features.parameters.ParameterIdentifier;
 import mia.modmod.features.parameters.impl.BooleanDataField;
-import mia.modmod.features.parameters.impl.InternalBooleanDataField;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import net.minecraft.network.protocol.game.ServerboundChatCommandPacket;
 
-import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public final class VanishTracker extends Feature implements ChatEventListener, PacketListener, AlwaysEnabled, TickEvent {
+public final class VanishTracker extends Feature implements ChatEventListener, PacketListener, AlwaysEnabled {
     private final BooleanDataField modVanishEnabledField;
     private final BooleanDataField adminVanishEnabledField;
     private final BooleanDataField ytVanishEnabledField;
@@ -45,7 +40,6 @@ public final class VanishTracker extends Feature implements ChatEventListener, P
         modVanishEnabledField = new BooleanDataField("Mod Vanish", "", ParameterIdentifier.of(this, "mod_vanish"), false, true);
         adminVanishEnabledField = new BooleanDataField("Admin Vanish", "", ParameterIdentifier.of(this, "admin_vanish"), false, true);
         ytVanishEnabledField = new BooleanDataField("YT Vanish", "", ParameterIdentifier.of(this, "yt_vanish"), false, true);
-
         customVanishMessage = new BooleanDataField("Custom Vanish MSGs", "Makes admin and mod vanish msgs look better imo", ParameterIdentifier.of(this, "custom_vanish_msg"), true, true);
     }
 
@@ -68,7 +62,6 @@ public final class VanishTracker extends Feature implements ChatEventListener, P
                 }
                 isAdminVanish = false;
             }
-            //Mod.messageError(command);
         }
     }
 
@@ -78,8 +71,6 @@ public final class VanishTracker extends Feature implements ChatEventListener, P
         Matcher matcher, vMatcher, pMatcher;
         boolean localIsAdminVanish = isAdminVanish;
 
-
-        // enabled
         vMatcher = VANISH_ENABLED.matcher(text);
         pMatcher = VANISH_PREFERENCE_ENABLED.matcher(text);
         if (vMatcher.find()) {
@@ -92,8 +83,6 @@ public final class VanishTracker extends Feature implements ChatEventListener, P
             modVanishEnabledField.setValue(true);
         }
 
-
-        // disabled
         vMatcher = VANISH_DISABLED.matcher(text);
         pMatcher = VANISH_PREFERENCE_DISABLED.matcher(text);
         if (vMatcher.find()) {
@@ -108,19 +97,14 @@ public final class VanishTracker extends Feature implements ChatEventListener, P
         }
 
 
-        // modify vanish msgs
         if (customVanishMessage.getValue()) {
-            boolean simplifiedTags = FeatureManager.getFeature(SimplifiedStaffChatTags.class).getEnabled();
+            Component adminTag = Component.literal("[ADMIN]").withColor(ColorBank.DF_ADMIN);
+            Component modTag = Component.literal("[MOD]").withColor(ColorBank.MC_DARK_GREEN);
 
             matcher = Pattern.compile("^» Vanish enabled\\. You will not be visible to other players\\.").matcher(text);
             if (matcher.find()) {
                 return message.modified(Component.empty()
-                        .append(
-                                localIsAdminVanish ?
-                                        (simplifiedTags ? SimplifiedStaffChatTags.ADMIN : Component.literal("[ADMIN]").withColor(ColorBank.DF_ADMIN)) :
-                                        (simplifiedTags ? SimplifiedStaffChatTags.MOD : Component.literal("[MOD]").withColor(ColorBank.MC_DARK_GREEN))
-
-                        )
+                        .append(localIsAdminVanish ? adminTag : modTag)
                         .append(Component.literal(localIsAdminVanish ? " Admin Vanish Enabled" : " Mod Vanish Enabled").withColor(ColorBank.MC_GRAY))
                         .append(Component.literal(" ✔").withColor(ColorBank.MC_GREEN)));
             }
@@ -128,12 +112,7 @@ public final class VanishTracker extends Feature implements ChatEventListener, P
             matcher = Pattern.compile("^» Vanish disabled\\. You will now be visible to other players\\.").matcher(text);
             if (matcher.find()) {
                 return message.modified(Component.empty()
-                        .append(
-                                localIsAdminVanish ?
-                                        (simplifiedTags ? SimplifiedStaffChatTags.ADMIN : Component.literal("[ADMIN]").withColor(ColorBank.DF_ADMIN)) :
-                                        (simplifiedTags ? SimplifiedStaffChatTags.MOD : Component.literal("[MOD]").withColor(ColorBank.MC_DARK_GREEN))
-
-                        )
+                        .append(localIsAdminVanish ? adminTag : modTag)
                         .append(Component.literal(localIsAdminVanish ? " Admin Vanish Disabled" : " Mod Vanish Disabled").withColor(ColorBank.MC_GRAY))
                         .append(Component.literal(" ❌").withColor(ColorBank.MC_RED)));
             }
@@ -148,33 +127,6 @@ public final class VanishTracker extends Feature implements ChatEventListener, P
 
     @Override
     public void receivePacket(Packet<?> packet, CallbackInfo ci) {
-
-    }
-
-
-    @Override
-    public void tickR(int tick) {
-        Component mv = Component.literal("[MOD]").withColor(0x30CC20).append(
-                Component.literal(" Mod Vanished").withColor(0x92FF87)
-        );
-        Component av = Component.literal("[ADMIN]").withColor(ColorBank.DF_ADMIN).append(
-                Component.literal(" Admin Vanished").withColor(0xFF9B9B)
-        );
-        if ((modVanishEnabledField.getValue() && adminVanishEnabledField.getValue())) {
-            Mod.hotbarMessage(Component.empty().append(mv).append(Component.literal(" + ").withColor(ColorBank.MC_GRAY)).append(av));
-        } else {
-            if (modVanishEnabledField.getValue()) {
-                Mod.hotbarMessage(mv);
-            }
-            if (adminVanishEnabledField.getValue()) {
-                Mod.hotbarMessage(av);
-            }
-        }
-
-    }
-
-    @Override
-    public void tickF(int tick) {
 
     }
 }

@@ -10,7 +10,7 @@ public enum PunishmentDuration {
     PERM("permanent"),
     WARNING("");
 
-    private String durationString;
+    private final String durationString;
 
     PunishmentDuration(String durationString) {
         this.durationString = durationString;

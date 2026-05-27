@@ -1,8 +1,5 @@
 package mia.modmod.render.util;
 
-
-import java.awt.*;
-
 public class ARGB {
     private final int rgb;
     private final double alpha;
@@ -71,10 +68,6 @@ public class ARGB {
 
 
         return (a << 24) | (r << 16) | (g << 8) | b;
-    }
-
-    public static ARGB getRainbowARGB(long phase, int period) {
-        return new ARGB(Color.HSBtoRGB((((System.currentTimeMillis() + (phase * period)) % (1000L * period)) / (1000f * period)), 0.5f , 1f), 1f);
     }
 }
 

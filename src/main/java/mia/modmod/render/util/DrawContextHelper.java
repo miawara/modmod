@@ -3,10 +3,8 @@ package mia.modmod.render.util;
 import mia.modmod.ColorBank;
 import mia.modmod.Mod;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.render.state.GuiElementRenderState;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.PlayerSkin;
 import org.joml.Vector3f;
 
@@ -58,11 +56,6 @@ public class DrawContextHelper {
         }
 
     }
-
-    public static void addGUIElement(GuiGraphics context, GuiElementRenderState elementRenderState) {
-        context.guiRenderState.submitGuiElement(elementRenderState);
-    }
-
     public static void drawPlayerHead(GuiGraphics context, PlayerSkin playerSkin, int x, int y, int size) {
         context.blit(
                 RenderPipelines.GUI_TEXTURED,

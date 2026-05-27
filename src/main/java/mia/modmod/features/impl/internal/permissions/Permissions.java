@@ -4,14 +4,10 @@ public record Permissions(boolean supportPermission, boolean moderatorPermission
     public Permissions() {
         this(false, false, false);
     }
-    public Permissions(boolean supportPermission, boolean moderatorPermission) {
-        this(supportPermission, moderatorPermission, false);
-    }
 
     public static final Permissions NONE = new Permissions(false, false, false);
     public static final Permissions MODERATOR = new Permissions(false, true, false);
     public static final Permissions SUPPORT = new Permissions(true, false, false);
-    public static final Permissions MOD_SUPPORT = new Permissions(true, true, false);
     public static final Permissions ADMIN = new Permissions(true, true, true);
 
     public boolean equals(Permissions permissions) {

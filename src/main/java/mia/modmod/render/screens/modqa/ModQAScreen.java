@@ -160,6 +160,7 @@ public class ModQAScreen extends Screen {
                     PunishmentTrack.INFORMATION_MODS,
                     PunishmentTrack.MALICIOUS_ITEMS,
                     PunishmentTrack.SERVER_CRASHING,
+                    PunishmentTrack.BOT_ACCOUNT
             };
 
             PunishmentTrack[] muteOptions = {

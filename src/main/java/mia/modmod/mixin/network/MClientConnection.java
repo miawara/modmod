@@ -1,9 +1,7 @@
 package mia.modmod.mixin.network;
 
 import io.netty.channel.ChannelFutureListener;
-import mia.modmod.Mod;
 import mia.modmod.features.FeatureManager;
-import mia.modmod.features.impl.internal.superdupertopsecrte.VerboseLogger;
 import mia.modmod.features.listeners.ModifiableEventData;
 import mia.modmod.features.listeners.impl.ChatEventListener;
 import mia.modmod.features.listeners.impl.PacketListener;
@@ -33,29 +31,14 @@ public abstract class MClientConnection {
             CallbackInfo ci = new CallbackInfo("", true);
             ModifiableEventData<Component> eventData = new ModifiableEventData<>(content.copy(), content.copy());
 
-
-            if (FeatureManager.getFeature(VerboseLogger.class).verboseChatLogger.getValue()) {
-               // Mod.warn(content.getString());
-                //Mod.warn(content.toString());
-            }
-
             for (ChatEventListener feature :  FeatureManager.getFeaturesByIdentifier(ChatEventListener.class)) {
                 eventData = feature.chatEvent(eventData, ci).eventResult(content, eventData.modified());
             }
 
             ModifiableEventData<Component> modifiableEventData = eventData;
-
-            /*
-            if (FeatureManager.getFeature(MessageChatHudFeature.class).addMessage(modifiableEventData)) {
-                canceled = true;
-            }
-
-             */
             if (ci.isCancelled()) {
                 canceled = true;
             }
-
-
             return new ClientboundSystemChatPacket(modifiableEventData.modified(), overlay);
         }
         return packet;

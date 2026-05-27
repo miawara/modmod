@@ -16,7 +16,7 @@ import java.util.List;
 
 public final class CommandAliaser extends Feature implements RegisterCommandListener, AlwaysEnabled {
     public CommandAliaser(Categories category) {
-        super(category, "cmd aliser", "cmdaliser", "registers shortcuts for common commands");
+        super(category, "Command Aliaser", "cmdaliser", "registers shortcuts for common commands");
     }
 
     record SimpleAlias(String command,  @NotBlank String ...aliases) { }
@@ -26,16 +26,11 @@ public final class CommandAliaser extends Feature implements RegisterCommandList
     public void register(CommandDispatcher<FabricClientCommandSource> dispatcher, CommandBuildContext registryAccess) {
         List<SimpleAlias> simpleAliasList = List.of(
                 new SimpleAlias("mod vanish", "mv", "modv"),
-                new SimpleAlias("support queue", "queue"),
-                new SimpleAlias("item get debug_stick", "debug", "debug_stick"),
-                new SimpleAlias("item nbt", "nbt"),
-                new SimpleAlias("lagslayer", "ls")
+                new SimpleAlias("support queue", "queue")
         );
 
         List<GreedyAlias> greedyAliasList = List.of(
-                new GreedyAlias("plot vars", "pattern", "vars"),
-                new GreedyAlias("support spectate-code", "id", "cs", "codespectate"),
-                new GreedyAlias("support stats", "stats", "name")
+                new GreedyAlias("support spectate-code", "id", "cs", "codespectate")
         );
 
         for (SimpleAlias simpleAlias : simpleAliasList) {

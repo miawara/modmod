@@ -162,7 +162,7 @@ public final class PlayerTracker extends Feature implements RegisterCommandListe
 
         int delta = trackedPlayerPunishmentTracks.get(player).getAllPunishments().size() - numPunishments;
         if (delta > 0) {
-            text.add(Component.literal(delta + " unidentifiable or informal punishments found!").withColor(ColorBank.MC_RED));
+            text.add(Component.literal(delta + " unidentifiable punishments found!").withColor(ColorBank.MC_RED));
         }
         if (!activePunishments.isEmpty()) {
             text.add(Component.empty());

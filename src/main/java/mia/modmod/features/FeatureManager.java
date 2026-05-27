@@ -1,9 +1,6 @@
 package mia.modmod.features;
 
-import mia.modmod.features.impl.development.*;
-import mia.modmod.features.impl.general.AutoTip;
-import mia.modmod.features.impl.general.chat.SimplifiedStaffChatTags;
-import mia.modmod.features.impl.general.title.JoinButton;
+import mia.modmod.features.impl.support.SessionSpyMessages;
 import mia.modmod.features.impl.internal.ConfigScreenFeature;
 import mia.modmod.features.impl.internal.permissions.PermissionTracker;
 import mia.modmod.features.impl.internal.commands.CommandAliaser;
@@ -11,7 +8,6 @@ import mia.modmod.features.impl.internal.commands.CommandScheduler;
 import mia.modmod.features.impl.internal.mode.LocationAPI;
 import mia.modmod.features.impl.internal.server.ServerManager;
 import mia.modmod.features.impl.internal.staff.VanishTracker;
-import mia.modmod.features.impl.internal.superdupertopsecrte.VerboseLogger;
 import mia.modmod.features.impl.moderation.ModQA;
 import mia.modmod.features.impl.moderation.reports.ReportTracker;
 import mia.modmod.features.impl.moderation.VanishFly;
@@ -35,29 +31,16 @@ public final class FeatureManager {
     private static HashMap<FeatureListener, List<? extends AbstractEventListener>> listeners;
     private static HashMap<Class<? extends Feature>, Feature> features;
 
-    // config has to load b4 features are
     public static void init() {
         listeners = new HashMap<>();
         features = new HashMap<>();
         initFeatures();
 
-        // register listeners
         FeatureListener.getFeatureIdentifiers().forEach(featureListener -> listeners.put(featureListener, getFeaturesByIdentifier(featureListener.getIdentifier())));
     }
 
     private static void initFeatures() {
-        add(new JoinButton(Categories.GENERAL));
-        add(new AutoTip(Categories.GENERAL));
-        add(new SimplifiedStaffChatTags(Categories.GENERAL));
-        //add(new CodeSignColorer(Categories.DEV_EXPERIMENTAL));
-        //add(new ChestViewer(Categories.DEV_EXPERIMENTAL));
-        add(new SignPeek(Categories.DEV));
-        add(new CPUDisplay(Categories.DEV));
-        add(new ItemTagViewer(Categories.DEV));
-        //add(new PlotLoader(Categories.DEV_EXPERIMENTAL));
-        //add(new PlotScanner(Categories.DEV_EXPERIMENTAL));
-        add(new ItemLorePeeker(Categories.DEV));
-
+        add(new SessionSpyMessages(Categories.SUPPORT));
         add(new AutoQueue(Categories.SUPPORT));
         add(new SupportHUD(Categories.SUPPORT));
 
@@ -70,9 +53,6 @@ public final class FeatureManager {
         add(new ReportTracker(Categories.MODERATION));
 
         initInternalFeatures();
-
-        // must be initialized last !!!
-        add(new PermissionTracker(Categories.INTERNAL));
     }
 
     private static void initInternalFeatures() {
@@ -82,7 +62,7 @@ public final class FeatureManager {
         add(new CommandScheduler(Categories.INTERNAL));
         add(new VanishTracker(Categories.INTERNAL));
         add(new LocationAPI(Categories.INTERNAL));
-        add(new VerboseLogger(Categories.INTERNAL));
+        add(new PermissionTracker(Categories.INTERNAL));
     }
 
     private static void add(Feature feature) {

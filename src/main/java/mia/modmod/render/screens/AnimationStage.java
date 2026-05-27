@@ -6,7 +6,7 @@ public enum AnimationStage {
     CLOSING(-1),
     CLOSED(0);
 
-    public int direction;
+    public final int direction;
 
     AnimationStage(int direction) {
         this.direction = direction;

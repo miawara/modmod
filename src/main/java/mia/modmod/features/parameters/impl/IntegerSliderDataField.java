@@ -25,6 +25,7 @@ public class IntegerSliderDataField extends IntegerDataField {
     public Integer getMaxValue() { return maxValue; }
 
     @Override
+    @SuppressWarnings({"deprecation"})
     public void addYACLParameter(OptionGroup.Builder featureGroup) {
         featureGroup.option(
                 Option.createBuilder(Integer.class)

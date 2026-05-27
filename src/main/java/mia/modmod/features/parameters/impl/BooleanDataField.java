@@ -26,6 +26,7 @@ public class BooleanDataField extends ParameterDataField<Boolean> {
     }
 
     @Override
+    @SuppressWarnings({"deprecation"})
     public void addYACLParameter(OptionGroup.Builder featureGroup) {
         featureGroup.option(
                 Option.createBuilder(boolean.class)

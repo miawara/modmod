@@ -31,7 +31,7 @@ public final class CommandScheduler extends Feature implements TickEvent, Server
     private static long nextTimestamp;
 
     public CommandScheduler(Categories category) {
-        super(category, "cmd scheduler", "cmd_scheduler", "Schedules non-player executed commands.");
+        super(category, "Command Scheduler", "cmd_scheduler", "Schedules non-player executed commands.");
         scheduledCommands = new ArrayList<>();
         chatConsumers = new ArrayList<>();
         soundHiders = new ArrayList<>();

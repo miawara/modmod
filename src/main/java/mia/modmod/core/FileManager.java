@@ -9,12 +9,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 
+// copied from codeclient
 public final class FileManager {
-    /**
-     * Verify the existence and get the mod elements folder.
-     *
-     * @return
-     */
     public static Path Path() {
         Path path = Mod.MC.gameDirectory.toPath().resolve(Mod.MOD_ID);
         path.toFile().mkdir();
@@ -32,8 +28,7 @@ public final class FileManager {
     public static File getPath(String filePath) {
         return new File(FabricLoader.getInstance().getGameDir().toFile(), filePath);
     }
-    
-    
+
 
     public static void writeFile(File file, String content) throws IOException {
         boolean ignore;

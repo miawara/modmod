@@ -47,7 +47,6 @@ public final class LocationAPI extends Feature implements ChatEventListener, Ser
         matcher = Pattern.compile("^» Joined game: (.*) by (.{3,16})\\.").matcher(content);
         if (matcher.find()) {
             modeSwitch(DFMode.PLAY);
-            //locationStatus = LocationStatus.LOCATION_CHANGE;
         }
 
         matcher = Pattern.compile("» You are now in dev mode\\.").matcher(content);
@@ -68,7 +67,6 @@ public final class LocationAPI extends Feature implements ChatEventListener, Ser
         matcher = Pattern.compile("^» You are now spectating this plots code! Other people cannot see you and this action has been logged\\. Do /spawn to exit\\.").matcher(content);
         if (matcher.find()) {
             modeSwitch(DFMode.CODE_SPECTATE);
-            //Mod.displayMessage("Entering code-spectate...");
             ci.cancel();
         }
 

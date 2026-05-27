@@ -1,8 +1,5 @@
 accessWidener v2 named
 
-# hehe no one will EVER read this muhauhah
-#accessible method net/minecraft/client/gui/screen/Screen addDrawableChild (Lnet/minecraft/client/gui/Element;)Lnet/minecraft/client/gui/Element;
-
 accessible method net/minecraft/client/renderer/GameRenderer getFov (Lnet/minecraft/client/Camera;FZ)F
 
 

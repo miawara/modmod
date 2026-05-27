@@ -26,6 +26,7 @@ public class IntegerDataField extends ParameterDataField<Integer> {
     }
 
     @Override
+    @SuppressWarnings({"deprecation"})
     public void addYACLParameter(OptionGroup.Builder featureGroup) {
         featureGroup.option(
                 Option.createBuilder(Integer.class)

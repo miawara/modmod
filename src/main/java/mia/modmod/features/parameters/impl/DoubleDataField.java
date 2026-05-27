@@ -26,6 +26,7 @@ public class DoubleDataField extends ParameterDataField<Double> {
     }
 
     @Override
+    @SuppressWarnings({"deprecation"})
     public void addYACLParameter(OptionGroup.Builder featureGroup) {
         featureGroup.option(
                 Option.createBuilder(Double.class)

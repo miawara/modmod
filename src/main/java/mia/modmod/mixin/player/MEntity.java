@@ -13,7 +13,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Entity.class)
 public abstract class MEntity {
-
     @Inject(method = "baseTick", at = @At("HEAD"))
     private void constantSpectatorMovement(CallbackInfo ci) {
         if ((Object) this instanceof LocalPlayer player) {

@@ -32,6 +32,7 @@ public class ColorDataField extends ParameterDataField<Color> {
     }
 
     @Override
+    @SuppressWarnings({"deprecation"})
     public void addYACLParameter(OptionGroup.Builder featureGroup) {
         featureGroup.option(
                 Option.createBuilder(Color.class)

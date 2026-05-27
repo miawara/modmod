@@ -7,7 +7,6 @@ import mia.modmod.features.FeatureManager;
 import mia.modmod.features.listeners.impl.*;
 import mia.modmod.render.util.HudMatrixRegistry;
 import net.fabricmc.api.ClientModInitializer;
-
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -16,14 +15,10 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
 import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents;
-import net.fabricmc.fabric.api.event.player.UseBlockCallback;
-import net.fabricmc.fabric.api.event.player.UseEntityCallback;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.InteractionResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +26,6 @@ import java.util.UUID;
 
 public class Mod implements ClientModInitializer {
 	public static final String MOD_ID = "modmod";
-	public static final String MOD_NAME = "modmod";
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 	public static final Minecraft MC = Minecraft.getInstance();
@@ -40,29 +34,11 @@ public class Mod implements ClientModInitializer {
 
 	@Override
 	public void onInitializeClient() {
-		log("");
-		log("modmod client initializer loaded...");
-		System.setProperty("java.awt.headless", "false");
-
-
 		ConfigStore.load();
 		FeatureManager.init();
 		Mod.registerCallbacks();
 		FeatureManager.getFeaturesByIdentifier(RegisterKeyBindEvent.class).forEach(RegisterKeyBindEvent::registerKeyBind);
-
-		log(
-				"""
-				modmod initialization complete! :3
-                
-				                   .___                 .___
-				  _____   ____   __| _/_____   ____   __| _/
-				 /     \\ /  _ \\ / __ |/     \\ /  _ \\ / __ |\s
-				|  Y Y  (  <_> ) /_/ |  Y Y  (  <_> ) /_/ |\s
-				|__|_|  /\\____/\\____ |__|_|  /\\____/\\____ |\s
-				      \\/            \\/     \\/            \\/\s
-                     
-															   now in full color
-                """);
+		log("modmod initialized");
 	}
 
 
@@ -73,7 +49,6 @@ public class Mod implements ClientModInitializer {
 
 	private static void registerCallbacks() {
 		log("registering callbacks...");
-
 
 		WorldRenderEvents.END_MAIN.register(context -> {
 			HudMatrixRegistry.register(context);
@@ -97,26 +72,15 @@ public class Mod implements ClientModInitializer {
 		ClientPlayConnectionEvents.INIT.register((handler, client) -> FeatureManager.implementFeatureListener(ServerConnectionEventListener.class, feature -> feature.serverConnectInit(handler, client)));
 		ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> FeatureManager.implementFeatureListener(ServerConnectionEventListener.class, feature -> feature.serverConnectJoin(handler, sender, client)));
 		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> FeatureManager.implementFeatureListener(ServerConnectionEventListener.class, feature -> feature.serverConnectDisconnect(handler, client)));
-		UseBlockCallback.EVENT.register((player, world, hand, hitResult) -> {
-			FeatureManager.implementFeatureListener(PlayerUseEventListener.class, feature -> feature.useBlockCallback(player, world, hand, hitResult));
-			return InteractionResult.PASS;
-		});
-		UseEntityCallback.EVENT.register((player, world, hand, entity, hitResult) -> {
-			FeatureManager.implementFeatureListener(PlayerUseEventListener.class, feature -> feature.useEntityCallback(player, world, hand, entity, hitResult));
-			return InteractionResult.PASS;
-		});
 		ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> FeatureManager.implementFeatureListener(RegisterCommandListener.class, feature -> feature.register(dispatcher, registryAccess)));
 
 		log("callback registering complete!");
 	}
 
 	public static void sendCommand(String command) {
-		if (command.charAt(0) == '/') {
-			if (Mod.MC.getConnection() != null) {
-				Mod.MC.getConnection().sendCommand(command.substring(1));
-			}
-		} else {
-			Mod.messageError("tried to execute '" + command + "'" + " but doesn't have '/' prefix, are you sure this is supposed to be a command? (report to developers)");
+		assert command.charAt(0) == '/';
+		if (Mod.MC.getConnection() != null) {
+			Mod.MC.getConnection().sendCommand(command.substring(1));
 		}
 	}
 
@@ -131,15 +95,6 @@ public class Mod implements ClientModInitializer {
 				.append(Component.literal(MOD_ID + " ").withColor(id_color))
 				.append(Component.literal("᛬ ").withColor(0x9c9c9c))
 				.append(message.copy()), false);
-		});
-
-	}
-
-	public static void hotbarMessage(Component message) {
-		if (Mod.MC.player == null) return;
-
-		Mod.MC.execute(() -> {
-			Mod.MC.player.displayClientMessage(message, true);
 		});
 
 	}
@@ -160,7 +115,6 @@ public class Mod implements ClientModInitializer {
 		message(Component.literal(message), ColorBank.MIA_PURPLE);
 	}
 
-
 	public static void messageError(Component message) {
 		message(message.copy().withColor(ColorBank.MC_RED), 0xff695c);
 	}
@@ -171,6 +125,7 @@ public class Mod implements ClientModInitializer {
 
 	public static Screen getCurrentScreen() { return Mod.MC.screen; }
 	public static void setCurrentScreen(Screen screen) { Mod.MC.setScreen(screen); }
+
 	public static int getScaledWindowWidth() {
 		return Mod.MC.getWindow().getGuiScaledWidth();
 	}
@@ -178,7 +133,6 @@ public class Mod implements ClientModInitializer {
 		return Mod.MC.getWindow().getGuiScaledHeight();
 	}
 
-	public static String getModVersion() { return FabricLoader.getInstance().getModContainer(MOD_ID).isPresent() ? FabricLoader.getInstance().getModContainer(MOD_ID).get().getMetadata().getVersion().getFriendlyString() : null; }
 	public static String getPlayerName() { return Mod.MC.getUser().getName(); }
 	public static UUID getPlayerUUID() { return Mod.MC.getUser().getProfileId(); }
 

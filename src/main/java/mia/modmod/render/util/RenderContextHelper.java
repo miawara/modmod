@@ -34,6 +34,7 @@ public class RenderContextHelper {
         int displayHeight = Mod.MC.getWindow().getScreenHeight();
         Vector3f target = new Vector3f();
 
+        assert camera != null;
         double deltaX = pos.x - camera.position().x;
         double deltaY = pos.y - camera.position().y;
         double deltaZ = pos.z - camera.position().z;
@@ -50,7 +51,6 @@ public class RenderContextHelper {
 
     public static float getFov(float tickProgress) {
         try {
-            //return 0.4f;
             return Mod.MC.gameRenderer.getFov(Mod.MC.gameRenderer.getMainCamera(), tickProgress, true);
         } catch (Exception e) {
             throw new RuntimeException(e);
