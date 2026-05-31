@@ -11,7 +11,7 @@ import mia.modmod.features.parameters.ParameterIdentifier;
 import mia.modmod.features.parameters.impl.FloatDataField;
 import mia.modmod.features.parameters.impl.IntegerDataField;
 import mia.modmod.mixin.render.RenderTypeAccessor;
-import mia.modmod.render.util.ARGB;
+import mia.modmod.render2d.util.ARGB;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 import net.minecraft.client.renderer.rendertype.LayeringTransform;
@@ -22,7 +22,6 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 
-import java.awt.*;
 import java.util.HashMap;
 import java.util.Locale;
 

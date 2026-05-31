@@ -1,0 +1,82 @@
+package mia.modmod.render2d.util.elements;
+
+import mia.modmod.render2d.util.AxisBinding;
+import mia.modmod.render2d.util.DrawBinding;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.input.MouseButtonEvent;
+import org.joml.Vector2i;
+
+import java.util.ArrayList;
+
+// todo: replace class initializer with builder based widget system, also move rendering code into its own library for use in my other mods
+
+public abstract class DrawObject {
+    protected Vector2i position, size;
+
+    protected DrawObject parent;
+    protected ArrayList<DrawObject> drawables;
+
+    protected DrawBinding parentBinding;
+    protected DrawBinding selfBinding;
+
+    protected boolean renderSelfWithScissors;
+    protected boolean renderChildrenWithScissors;
+
+    public DrawBinding getParentBinding() { return parentBinding == null ? new DrawBinding(AxisBinding.NONE, AxisBinding.NONE) : parentBinding; }
+    public DrawBinding getSelfBinding() { return selfBinding == null ? new DrawBinding(AxisBinding.NONE, AxisBinding.NONE) : selfBinding; }
+
+    public void setParentBinding(DrawBinding binding) { this.parentBinding = binding; }
+    public void setSelfBinding(DrawBinding binding) { this.selfBinding = binding; }
+
+    public void setParent(DrawObject parent) { this.parent = parent; }
+    public void addDrawable(DrawObject child) { drawables.add(child); child.setParent(this); }
+    public void clearDrawables() { drawables.clear(); }
+
+    public void setRenderWithScissors(boolean renderSelfWithScissors, boolean renderChildrenWithScissors) {
+        this.renderSelfWithScissors = renderSelfWithScissors;
+        this.renderChildrenWithScissors = renderChildrenWithScissors;
+    }
+
+    public Vector2i getRawPosition() { return position; }
+
+    public Vector2i getPosition() {
+        return ((parent != null) ?
+                getRawPosition().add(parent.getPosition().add(parentBinding == null ? new Vector2i(0, 0) : parentBinding.pointMultiply(parent.getSize())))
+                : getRawPosition()).add(selfBinding == null ? new Vector2i(0, 0) : selfBinding.pointMultiply(this.getSize().mul(-1, -1)));
+    }
+
+    public int x1() { return getPosition().x(); }
+    public int y1() { return getPosition().y(); }
+    public int x2() { return x1()+getWidth(); }
+    public int y2() { return y1()+getHeight(); }
+
+    public Vector2i topLeft() { return getPosition(); }
+    public Vector2i topRight() { return topLeft().add(getWidth(), 0); }
+    public Vector2i bottomLeft() { return topLeft().add(0, getHeight()); }
+    public Vector2i bottomRight() { return topLeft().add(getWidth(), getHeight()); }
+
+    public Vector2i getSize() { return size; }
+    public int getHeight() { return getSize().y(); }
+    public int getWidth() { return getSize().x(); }
+
+
+    public boolean mouseClick(MouseButtonEvent click, boolean doubled) {
+        return false;
+    }
+
+    public boolean containsPoint(double mouseX, double mouseY) {
+        return mouseX > x1() && mouseX < x2() && mouseY > y1() && mouseY < y2();
+    }
+
+    protected abstract void draw(GuiGraphics context, int mouseX, int mouseY);
+
+    public void render(GuiGraphics context, int mouseX, int mouseY) {
+        if (renderSelfWithScissors) context.enableScissor(this.x1(), this.y1(), this.x2(), this.y2());
+        draw(context, mouseX, mouseY);
+        if (renderSelfWithScissors)context.disableScissor();
+
+        if (renderChildrenWithScissors) context.enableScissor(this.x1(), this.y1(), this.x2(), this.y2());
+        this.drawables.forEach(object -> object.render( context, mouseX, mouseY));
+        if (renderChildrenWithScissors) context.disableScissor();
+    }
+}

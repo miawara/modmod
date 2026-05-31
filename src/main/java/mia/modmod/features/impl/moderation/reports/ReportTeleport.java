@@ -4,6 +4,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import mia.modmod.ColorBank;
 import mia.modmod.Mod;
+import mia.modmod.core.StreamUtils;
 import mia.modmod.features.Categories;
 import mia.modmod.features.Feature;
 import mia.modmod.features.FeatureManager;
@@ -106,9 +107,11 @@ public final class ReportTeleport extends Feature implements ChatEventListener, 
     public void tickR(int tick) {
         if (isInternalReportTeleport && !requestingHistory) {
             CommandScheduler.addCommand(new ScheduledCommand("preference mod_vanish true"));
-            CommandScheduler.addCommand(new ScheduledCommand("server " + requestNodeID));
+            if (!StreamUtils.getPlayerList(false).contains(requestPlayerName)) {
+                CommandScheduler.addCommand(new ScheduledCommand("server " + requestNodeID));
+            }
             CommandScheduler.addCommand(new ScheduledCommand("tp " + requestPlayerName));
-            if (FeatureManager.getFeature(ReportTeleport.class).runalts.getValue()) CommandScheduler.addCommand(new ScheduledCommand("alts " + requestPlayerName));
+            if (runalts.getValue()) CommandScheduler.addCommand(new ScheduledCommand("alts " + requestPlayerName));
 
             isInternalReportTeleport = false;
         }

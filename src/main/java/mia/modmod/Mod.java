@@ -5,7 +5,7 @@ import com.google.gson.GsonBuilder;
 import mia.modmod.config.ConfigStore;
 import mia.modmod.features.FeatureManager;
 import mia.modmod.features.listeners.impl.*;
-import mia.modmod.render.util.HudMatrixRegistry;
+import mia.modmod.render2d.util.HudMatrixRegistry;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
@@ -18,6 +18,7 @@ import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.Packet;
 import net.minecraft.resources.Identifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,7 +56,13 @@ public class Mod implements ClientModInitializer {
 			FeatureManager.implementFeatureListener(WorldRenderEventListener.class, feature -> { feature.WorldRenderEvents_END_MAIN(context); });
 
 		});
-		WorldRenderEvents.BEFORE_TRANSLUCENT.register(context -> {FeatureManager.implementFeatureListener(WorldRenderEventListener.class, feature -> { feature.WorldRenderEvents_BEFORE_TRANSLUCENT(context); });});
+		WorldRenderEvents.BEFORE_TRANSLUCENT.register(context -> {
+			FeatureManager.implementFeatureListener(WorldRenderEventListener.class, feature -> { feature.WorldRenderEvents_BEFORE_TRANSLUCENT(context); });
+		});
+
+		WorldRenderEvents.AFTER_ENTITIES.register(context -> {
+			FeatureManager.implementFeatureListener(WorldRenderEventListener.class, feature -> { feature.WorldRenderEvents_AFTER_ENTITIES(context); });
+		});
 
 		ClientTickEvents.START_CLIENT_TICK.register(client -> FeatureManager.implementFeatureListener(TickEvent.class, feature -> { feature.tickR(tick); }));
 		ClientTickEvents.END_CLIENT_TICK.register(client -> FeatureManager.implementFeatureListener(TickEvent.class, feature -> {
@@ -66,8 +73,8 @@ public class Mod implements ClientModInitializer {
 		ClientLifecycleEvents.CLIENT_STOPPING.register(client -> {FeatureManager.implementFeatureListener(ClientEventListener.class, ClientEventListener::clientShutdown); shutdownClient();});
 		ItemTooltipCallback.EVENT.register(((itemStack, tooltipContext, tooltipType, list) -> FeatureManager.implementFeatureListener(RenderTooltip.class, feature -> feature.tooltip(itemStack, tooltipContext, tooltipType, list))));
 		HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT, Identifier.fromNamespaceAndPath(MOD_ID,"before_chat"), (context, tickDelta) -> {
-			HudMatrixRegistry.setRenderHUDTickCounter(tickDelta);
-			FeatureManager.implementFeatureListener(RenderHUD.class, feature -> feature.renderHUD(context, tickDelta));
+			//HudMatrixRegistry.setRenderHUDTickCounter(tickDelta);
+			//FeatureManager.implementFeatureListener(RenderHUD.class, feature -> feature.renderHUD(context, tickDelta));
 		});
 		ClientPlayConnectionEvents.INIT.register((handler, client) -> FeatureManager.implementFeatureListener(ServerConnectionEventListener.class, feature -> feature.serverConnectInit(handler, client)));
 		ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> FeatureManager.implementFeatureListener(ServerConnectionEventListener.class, feature -> feature.serverConnectJoin(handler, sender, client)));
@@ -105,6 +112,11 @@ public class Mod implements ClientModInitializer {
 			Mod.MC.player.displayClientMessage(message, false);
 		});
 
+	}
+
+	public static void sendPacket(Packet<?> packet) {
+		assert Mod.MC.getConnection() != null;
+		Mod.MC.getConnection().send(packet);
 	}
 
 	public static void message(Component message) {

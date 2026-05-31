@@ -412,7 +412,7 @@ public final class PlayerTracker extends Feature implements RegisterCommandListe
                             );
                         })
                         .executes(commandContext -> {
-                            String username = StringArgumentType.getString(commandContext, "username");
+                            String username = StringArgumentType.getString(commandContext, "username").strip();
 
                             if (username.equals("clear")) {
                                 Mod.message(Component.literal("Tracker Cleared!").withColor(ColorBank.WHITE).append(Component.literal(" (" + trackedPlayers.size() + " player" + (trackedPlayers.size() == 1 ? "" : "s") + ")").withColor(ColorBank.WHITE_GRAY)));
@@ -421,9 +421,12 @@ public final class PlayerTracker extends Feature implements RegisterCommandListe
                             } else {
                                 if (trackedPlayers.contains(username)) {
                                     trackedPlayers.remove(username);
-
                                     Mod.message(Component.literal("Stopped Tracking: ").withColor(ColorBank.WHITE).append(Component.literal(username).withColor(ColorBank.WHITE_GRAY)));
                                 } else {
+                                    if (!Pattern.matches("^[a-zA-Z0-9_]{3,16}$", username)) {
+                                        Mod.messageError(username + " is not a valid username");
+                                        return 1;
+                                    }
                                     addTrackedPlayer(username);
                                     Mod.message(Component.literal("Tracking: ").withColor(ColorBank.WHITE).append(Component.literal(username).withColor(ColorBank.WHITE_GRAY)));
                                 }

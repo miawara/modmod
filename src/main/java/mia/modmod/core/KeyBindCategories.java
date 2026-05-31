@@ -6,8 +6,7 @@ import net.minecraft.resources.Identifier;
 
 public enum KeyBindCategories {
     GENERAL("general"),
-    STAFF("staff"),
-    DEVELOPMENT("dev");
+    STAFF("staff");
 
     private final KeyMapping.Category category;
 

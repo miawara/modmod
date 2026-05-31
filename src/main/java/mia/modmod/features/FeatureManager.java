@@ -1,5 +1,6 @@
 package mia.modmod.features;
 
+import mia.modmod.features.impl.general.NodeSwitcher;
 import mia.modmod.features.impl.support.SessionSpyMessages;
 import mia.modmod.features.impl.internal.ConfigScreenFeature;
 import mia.modmod.features.impl.internal.permissions.PermissionTracker;
@@ -40,6 +41,8 @@ public final class FeatureManager {
     }
 
     private static void initFeatures() {
+        add(new NodeSwitcher(Categories.GENERAL));
+
         add(new SessionSpyMessages(Categories.SUPPORT));
         add(new AutoQueue(Categories.SUPPORT));
         add(new SupportHUD(Categories.SUPPORT));

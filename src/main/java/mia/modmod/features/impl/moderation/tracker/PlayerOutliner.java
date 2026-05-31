@@ -10,37 +10,41 @@ import mia.modmod.features.listeners.impl.*;
 import mia.modmod.features.parameters.ParameterIdentifier;
 import mia.modmod.features.parameters.impl.BooleanDataField;
 import mia.modmod.features.parameters.impl.ColorDataField;
-import mia.modmod.render.util.*;
-import mia.modmod.render.util.Point;
-import mia.modmod.render.util.elements.DrawRect;
-import mia.modmod.render.util.elements.DrawText;
-import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderContext;
+import mia.modmod.mixin.render.RenderTypeAccessor;
+import mia.modmod.render2d.util.*;
+import mia.modmod.render2d.util.elements.DrawRect;
+import mia.modmod.render2d.util.elements.DrawText;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.multiplayer.PlayerInfo;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.culling.Frustum;
+import net.minecraft.client.renderer.rendertype.LayeringTransform;
+import net.minecraft.client.renderer.rendertype.RenderSetup;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
+import org.joml.Vector2i;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.awt.*;
 import java.util.*;
 import java.util.List;
-public final class PlayerOutliner extends Feature implements RenderHUD, ServerConnectionEventListener, WorldRenderEventListener, PacketListener {
+public final class PlayerOutliner extends Feature implements RenderHUD, ServerConnectionEventListener, PacketListener {
     private final ColorDataField outlinerColor;
     private final BooleanDataField shadeOutline;
 
     public PlayerOutliner(Categories category) {
         super(category, "Player Outliner", "outliner", "outlines tracked players");
         outlinerColor = new ColorDataField("Outline Color", "", new ParameterIdentifier(this, "outline_color"), new Color(0xed7aff), true);
-        shadeOutline = new BooleanDataField("Shade Outline", "", new ParameterIdentifier(this, "shade"), false, true);
+        shadeOutline = new BooleanDataField("Shade Outline", "Fills in the outline box", new ParameterIdentifier(this, "shade"), false, true);
     }
 
     @Override
@@ -54,16 +58,24 @@ public final class PlayerOutliner extends Feature implements RenderHUD, ServerCo
     }
 
 
+    public static final RenderType LINE = RenderTypeAccessor.of(
+            RenderPipelines.LINES_TRANSLUCENT.getClass().getSimpleName().toLowerCase(Locale.ROOT),
+            RenderSetup.builder(RenderPipelines.LINES_TRANSLUCENT)
+                    .sortOnUpload()
+                    .useLightmap()
+                    .useOverlay()
+                    .setLayeringTransform(LayeringTransform.VIEW_OFFSET_Z_LAYERING)
+                    .createRenderSetup()
+    );
+
     private void renderTrackerList(GuiGraphics context, DeltaTracker tickCounter) {
         if (Mod.MC.getConnection() == null) return;
 
         int margin = 5;
         int eachHeight = Mod.MC.font.lineHeight + margin * 2;
         Component titleText = Component.literal("Tracked Players:");
-        DrawRect container = new DrawRect(new Point(5,5), new Point(Mod.MC.font.width(titleText.getString()) + margin * 2, eachHeight), new ARGB(ColorBank.BLACK, 0.6f));
-        //DrawRect containerUnderline = new DrawRect(new Point(0,-1), new Point(container.getWidth(), 1), 0, new ARGB(0xed7aff, 1f),container);
-        //containerUnderline.setParentBinding(new DrawBinding(AxisBinding.NONE, AxisBinding.FULL));
-        DrawText containerTitle = new DrawText(new Point(margin,0), titleText, 1f,true, container);
+        DrawRect container = new DrawRect(new Vector2i(5,5), new Vector2i(Mod.MC.font.width(titleText.getString()) + margin * 2, eachHeight), new ARGB(ColorBank.BLACK, 0.6f));
+        DrawText containerTitle = new DrawText(new Vector2i(margin,0), titleText, 1f,true, container);
         containerTitle.setSelfBinding(new DrawBinding(AxisBinding.NONE, AxisBinding.MIDDLE));
         containerTitle.setParentBinding(new DrawBinding(AxisBinding.NONE, AxisBinding.MIDDLE));
 
@@ -79,10 +91,10 @@ public final class PlayerOutliner extends Feature implements RenderHUD, ServerCo
 
             Component playerText = Component.literal(player + " ").withColor(0xed7aff).append(online ? getLatencyText(player) : Component.literal("0ms").withColor(ColorBank.MC_GRAY)).append(Component.literal(" " + (online ? "online" : "offline")).withColor(onlineColor));
 
-            Point playerContainerPosition = container.getPosition().add(new Point(0,(eachHeight+1) * (i + 1)));
-            Point playerContainerSize = new Point(Mod.MC.font.width(playerText.getString()) + (margin + 1) * 2, eachHeight);
+            Vector2i playerContainerPosition = container.getPosition().add(new Vector2i(0,(eachHeight+1) * (i + 1)));
+            Vector2i playerContainerSize = new Vector2i(Mod.MC.font.width(playerText.getString()) + (margin + 1) * 2, eachHeight);
 
-            Point playerContainerSideSize =  new Point(2, playerContainerSize.y());
+            Vector2i playerContainerSideSize =  new Vector2i(2, playerContainerSize.y());
 
             int titleOffset = 0;
             int headMarginX = margin;
@@ -95,8 +107,8 @@ public final class PlayerOutliner extends Feature implements RenderHUD, ServerCo
             playerContainerSize = playerContainerSize.add(titleOffset, 0);
 
             DrawRect playerContainer = new DrawRect(playerContainerPosition, playerContainerSize,  new ARGB(ColorBank.BLACK, 0.6f));
-            DrawRect playerContainerSide = new DrawRect(new Point(0,0), playerContainerSideSize, new ARGB(onlineColor, 1f), playerContainer);
-            DrawText playerTitle = new DrawText(new Point(margin + playerContainerSide.getWidth() + titleOffset,0), playerText, 1f,false, playerContainer);
+            DrawRect playerContainerSide = new DrawRect(new Vector2i(0,0), playerContainerSideSize, new ARGB(onlineColor, 1f), playerContainer);
+            DrawText playerTitle = new DrawText(new Vector2i(margin + playerContainerSide.getWidth() + titleOffset,0), playerText, 1f,false, playerContainer);
             playerTitle.setSelfBinding(new DrawBinding(AxisBinding.NONE, AxisBinding.MIDDLE));
             playerTitle.setParentBinding(new DrawBinding(AxisBinding.NONE, AxisBinding.MIDDLE));
 
@@ -150,7 +162,7 @@ public final class PlayerOutliner extends Feature implements RenderHUD, ServerCo
 
         ArrayList<Double> xCords = new ArrayList<>();
         ArrayList<Double> yCords = new ArrayList<>();
-        List<Vec3> boundingBox = RenderContextHelper.getBoundingBoxCorners(playerEntity);
+        List<Vec3> boundingBox = RenderContextHelper.getBoundingBoxCorners(playerEntity.getBoundingBox());
         for (Vec3 cornerPos : boundingBox) {
             // lerp each corner
             Vec3 screenCornerPos = RenderContextHelper.worldToScreen(cornerPos.subtract(playerEntity.getPosition(tickCounter.getRealtimeDeltaTicks())).add(playerEntity.getPosition(tickCounter.getGameTimeDeltaPartialTick(false))));
@@ -182,13 +194,13 @@ public final class PlayerOutliner extends Feature implements RenderHUD, ServerCo
 
         Component labelText = Component.literal(playerEntity.getName().getString() + " ").withColor(ColorBank.WHITE).append(getLatencyText(playerName));
 
-        DrawRect labelRect = new DrawRect(new Point(x, y - labelRectHeight), new Point(Mod.MC.font.width(labelText.getString()) + labelRectMargin*2, labelRectHeight), fadedColor);
-        DrawText labelDrawText = new DrawText(new Point(labelRectMargin, 0), labelText, 1f, true, labelRect);
+        DrawRect labelRect = new DrawRect(new Vector2i(x, y - labelRectHeight), new Vector2i(Mod.MC.font.width(labelText.getString()) + labelRectMargin*2, labelRectHeight), fadedColor);
+        DrawText labelDrawText = new DrawText(new Vector2i(labelRectMargin, 0), labelText, 1f, true, labelRect);
         labelDrawText.setSelfBinding(new DrawBinding(AxisBinding.NONE, AxisBinding.MIDDLE));
         labelDrawText.setParentBinding(new DrawBinding(AxisBinding.NONE, AxisBinding.MIDDLE));
 
         DrawContextHelper.drawRectBorder(context, x, y, width, height, new ARGB(color, 1.0f));
-        DrawRect shaded = new DrawRect(new Point(x, y), new Point(width, height),  new ARGB(color, 0.4f));
+        DrawRect shaded = new DrawRect(new Vector2i(x, y), new Vector2i(width, height),  new ARGB(color, 0.4f));
         if (shadeOutline.getValue()) shaded.render(context, 0, 0);
 
         labelRect.render(context, 0, 0);
@@ -239,15 +251,6 @@ public final class PlayerOutliner extends Feature implements RenderHUD, ServerCo
     }
 
 
-    @Override
-    public void WorldRenderEvents_END_MAIN(WorldRenderContext context) {
-
-    }
-
-    @Override
-    public void WorldRenderEvents_BEFORE_TRANSLUCENT(WorldRenderContext context) {
-
-    }
 
 
     @Override

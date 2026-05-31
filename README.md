@@ -17,5 +17,4 @@
 - /queue (/support queue) (Helper)
 
 ## Contributions
-> Uses code from https://github.com/DFOnline/CodeClient for code chest viewer (deprecated)<br>
 > Heavy inspiration from https://github.com/uku3lig/hitrange for hit range Indicators (code is original since its licensed under a stricter license)

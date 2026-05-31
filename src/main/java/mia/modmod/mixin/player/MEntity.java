@@ -30,10 +30,7 @@ public abstract class MEntity {
                 if (player.input.keyPresses.jump()) newVelocity = newVelocity.add(0, flySpeed, 0);
                 if (player.input.keyPresses.shift()) newVelocity = newVelocity.subtract(0, flySpeed, 0);
                 player.setDeltaMovement(newVelocity);
-
             }
         }
     }
-
-
 }

@@ -3,10 +3,12 @@
   "package": "mia.modmod.mixin",
   "compatibilityLevel": "JAVA_21",
   "client": [
-    "player.MLivingEntityRenderer",
-    "render.RenderTypeAccessor",
+    "input.MMouseHandler",
     "network.MClientConnection",
-    "player.MEntity"
+    "player.MEntity",
+    "player.MLivingEntityRenderer",
+    "render.MGui",
+    "render.RenderTypeAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

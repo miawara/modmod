@@ -36,7 +36,7 @@ public final class PermissionTracker extends Feature implements AlwaysEnabled, S
     public PermissionTracker(Categories category) {
         super(category, "Permission Tracker", "perm_tracker", "Controls what features should be active based on your ranks.");
 
-        String warningDescription = "Changing this parameter will not automatically enable related features.\n\nIn order to spoof your permissions, use /change_permissions <t/f> <t/f> <t/f>\nThen disable this feature as it will try to correct your permissions everytime you join.";
+        String warningDescription = "Changing this parameter will not automatically enable related features.\n\nIn order to spoof your permissions (or it keeps failing to correctly grab your permissions), use /change_permissions <support: true/false> <moderator: true/false> <administrator: true/false>. You can also change them in this config but relevant features will not automatically update.\nThen disable this feature as it will try to correct your permissions everytime you join.";
         supportPermission = new BooleanDataField("Support Permission", warningDescription, ParameterIdentifier.of(this, "support_permission"), false, true);
         moderatorPermission = new BooleanDataField("Moderator Permission", warningDescription, ParameterIdentifier.of(this, "moderator_permission"), false, true);
         adminPermission = new BooleanDataField("Admin Permission", warningDescription, ParameterIdentifier.of(this, "admin_permission"), false, true);
@@ -52,14 +52,10 @@ public final class PermissionTracker extends Feature implements AlwaysEnabled, S
     }
 
     @Override
-    public void serverConnectInit(ClientPacketListener networkHandler, Minecraft minecraftServer) {
-
-    }
+    public void serverConnectInit(ClientPacketListener networkHandler, Minecraft minecraftServer) { }
 
     @Override
-    public void serverConnectJoin(ClientPacketListener networkHandler, PacketSender sender, Minecraft minecraftServer) {
-
-    }
+    public void serverConnectJoin(ClientPacketListener networkHandler, PacketSender sender, Minecraft minecraftServer) { }
 
     @Override
     public void serverConnectDisconnect(ClientPacketListener networkHandler, Minecraft minecraftServer) {
@@ -130,14 +126,13 @@ public final class PermissionTracker extends Feature implements AlwaysEnabled, S
 
                                                 for (DFRank rank : DFRank.values()) {
                                                     if (rankString.contains(rank.getPattern())) {
-                                                        //Mod.messageError(rank.name());
                                                         playerPermissions = playerPermissions.add(rank.getPermissions());
                                                         if (!Permissions.NONE.hasPerm(rank.getPermissions())) permissiveRanks.add(rank);
                                                     }
                                                 }
 
                                                 if (!getPlayerPermissions().equals(playerPermissions)) {
-                                                    if (permissiveRanks.isEmpty()) Mod.message(Component.literal("No permissive ranks detected!").withColor(ColorBank.MC_RED));
+                                                    if (permissiveRanks.isEmpty()) Mod.message(Component.literal("No permissive ranks detected.").withColor(ColorBank.MC_RED));
                                                     else Mod.message("Detected the following permissive ranks:");
 
                                                     for (DFRank rank : permissiveRanks) {
@@ -150,9 +145,9 @@ public final class PermissionTracker extends Feature implements AlwaysEnabled, S
                                             }
                                         },
                                         () -> {
-                                            Mod.messageError("Error grabbing rank data... try again later?");
+                                            Mod.messageError("Timed out grabbing rank data... try again later?");
                                         },
-                                        5000L,
+                                        10000L,
                                         true
                                 )
                         )

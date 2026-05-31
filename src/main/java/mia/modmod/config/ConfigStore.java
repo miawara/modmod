@@ -59,7 +59,7 @@ public final class ConfigStore {
     public static YetAnotherConfigLib getLibConfig() {
         YetAnotherConfigLib.Builder yacl =
                 YetAnotherConfigLib.createBuilder()
-                        .title(Component.literal("Used for narration. Could be used to render a title in the future."));
+                        .title(Component.literal("Used for narration. Could be used to render2d a title in the future."));
 
         for (Category category : Categories.getCategories()) {
             ConfigCategory.Builder configBuilder = ConfigCategory.createBuilder()

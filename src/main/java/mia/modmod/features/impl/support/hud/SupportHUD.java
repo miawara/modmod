@@ -13,18 +13,18 @@ import mia.modmod.features.listeners.impl.ServerConnectionEventListener;
 import mia.modmod.features.listeners.impl.TickEvent;
 import mia.modmod.features.parameters.ParameterIdentifier;
 import mia.modmod.features.parameters.impl.IntegerDataField;
-import mia.modmod.render.util.ARGB;
-import mia.modmod.render.util.AxisBinding;
-import mia.modmod.render.util.DrawBinding;
-import mia.modmod.render.util.Point;
-import mia.modmod.render.util.elements.DrawRect;
-import mia.modmod.render.util.elements.DrawText;
+import mia.modmod.render2d.util.ARGB;
+import mia.modmod.render2d.util.AxisBinding;
+import mia.modmod.render2d.util.DrawBinding;
+import mia.modmod.render2d.util.elements.DrawRect;
+import mia.modmod.render2d.util.elements.DrawText;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.network.chat.Component;
+import org.joml.Vector2i;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.ArrayList;
@@ -257,8 +257,8 @@ public final class SupportHUD extends Feature implements RenderHUD, ChatEventLis
                 }
                 int containerWidth = largestWidth + (containerMargin * 2);
                 supportHUDContainer = new DrawRect(
-                        new Point(Mod.getScaledWindowWidth() - (containerWidth + screenEdgeMargin), screenEdgeMargin),
-                        new Point(0, 0),
+                        new Vector2i(Mod.getScaledWindowWidth() - (containerWidth + screenEdgeMargin), screenEdgeMargin),
+                        new Vector2i(0, 0),
                         new ARGB(0, 0f)
                 );
 
@@ -266,8 +266,8 @@ public final class SupportHUD extends Feature implements RenderHUD, ChatEventLis
                 int i = 0;
                 for (ArrayList<Component> components : supportTextLists) {
                     DrawRect container = new DrawRect(
-                            new Point(0, i == 0 ? 0 : 2),
-                            new Point(containerWidth, (Mod.MC.font.lineHeight * components.size()) + (lineSpacing * (components.size() - 1)) + (containerMargin * 2)),
+                            new Vector2i(0, i == 0 ? 0 : 2),
+                            new Vector2i(containerWidth, (Mod.MC.font.lineHeight * components.size()) + (lineSpacing * (components.size() - 1)) + (containerMargin * 2)),
                             new ARGB(ColorBank.BLACK, 0.6f),
                             parentContainer
                     );
@@ -277,7 +277,7 @@ public final class SupportHUD extends Feature implements RenderHUD, ChatEventLis
                     int j = 0;
                     for (Component component : components) {
                         DrawText line = new DrawText(
-                                new Point(containerMargin, containerMargin + ((Mod.MC.font.lineHeight + lineSpacing) * j)),
+                                new Vector2i(containerMargin, containerMargin + ((Mod.MC.font.lineHeight + lineSpacing) * j)),
                                 component,
                                 1f,
                                 false,
@@ -300,9 +300,7 @@ public final class SupportHUD extends Feature implements RenderHUD, ChatEventLis
 
     @Override
     public void serverConnectJoin(ClientPacketListener networkHandler, PacketSender sender, Minecraft minecraftServer) {
-        currentSupportSession = null;
-        sessionQueue.clear();
-        questionQueue.clear();
+
     }
 
     @Override
@@ -312,7 +310,9 @@ public final class SupportHUD extends Feature implements RenderHUD, ChatEventLis
 
     @Override
     public void DFConnectJoin(ClientPacketListener networkHandler) {
-
+        currentSupportSession = null;
+        sessionQueue.clear();
+        questionQueue.clear();
     }
 
     @Override

@@ -29,7 +29,7 @@ public class PunishmentData {
     public boolean isActive() { return isActive; }
     public ChronoTimestamp chronoTimestamp() { return chronoTimestamp; }
 
-    public Optional<String> getExpirationString() { return expirationString != null ? Optional.of(expirationString) : Optional.empty(); }
+    public Optional<String> getExpirationString() { return Optional.ofNullable(expirationString); }
     public void setExpirationString(String expirationString) { this.expirationString = expirationString; }
 
 
