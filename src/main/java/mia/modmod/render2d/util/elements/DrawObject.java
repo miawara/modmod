@@ -41,8 +41,8 @@ public abstract class DrawObject {
 
     public Vector2i getPosition() {
         return ((parent != null) ?
-                getRawPosition().add(parent.getPosition().add(parentBinding == null ? new Vector2i(0, 0) : parentBinding.pointMultiply(parent.getSize())))
-                : getRawPosition()).add(selfBinding == null ? new Vector2i(0, 0) : selfBinding.pointMultiply(this.getSize().mul(-1, -1)));
+                new Vector2i(getRawPosition()).add(parent.getPosition().add(parentBinding == null ? new Vector2i(0, 0) : parentBinding.pointMultiply(parent.getSize())))
+                : new Vector2i(getRawPosition())).add(selfBinding == null ? new Vector2i(0, 0) : selfBinding.pointMultiply(this.getSize().mul(-1, -1)));
     }
 
     public int x1() { return getPosition().x(); }
@@ -55,7 +55,7 @@ public abstract class DrawObject {
     public Vector2i bottomLeft() { return topLeft().add(0, getHeight()); }
     public Vector2i bottomRight() { return topLeft().add(getWidth(), getHeight()); }
 
-    public Vector2i getSize() { return size; }
+    public Vector2i getSize() { return new Vector2i(size); }
     public int getHeight() { return getSize().y(); }
     public int getWidth() { return getSize().x(); }
 

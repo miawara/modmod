@@ -400,6 +400,14 @@ public final class PlayerTracker extends Feature implements RegisterCommandListe
                     return 1;
                 }));
 
+
+        dispatcher.register(ClientCommandManager.literal("tcmv")
+                        .executes(commandContext -> {
+                            Mod.message(Component.literal("Tracker Cleared!").withColor(ColorBank.WHITE).append(Component.literal(" (" + trackedPlayers.size() + " player" + (trackedPlayers.size() == 1 ? "" : "s") + ")").withColor(ColorBank.WHITE_GRAY)));
+                            Mod.sendCommand("/mod vanish");
+                            return 1;
+                        }));
+
         dispatcher.register(ClientCommandManager.literal("track")
                 .then(ClientCommandManager.argument("username", StringArgumentType.string())
                         .suggests((context, builder) -> {
