@@ -57,17 +57,6 @@ public final class PlayerOutliner extends Feature implements RenderHUD, ServerCo
         renderPlayerOutlines(context, tickCounter);
     }
 
-
-    public static final RenderType LINE = RenderTypeAccessor.of(
-            RenderPipelines.LINES_TRANSLUCENT.getClass().getSimpleName().toLowerCase(Locale.ROOT),
-            RenderSetup.builder(RenderPipelines.LINES_TRANSLUCENT)
-                    .sortOnUpload()
-                    .useLightmap()
-                    .useOverlay()
-                    .setLayeringTransform(LayeringTransform.VIEW_OFFSET_Z_LAYERING)
-                    .createRenderSetup()
-    );
-
     private void renderTrackerList(GuiGraphics context, DeltaTracker tickCounter) {
         if (Mod.MC.getConnection() == null) return;
 

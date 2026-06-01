@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 public enum Categories {
-    GENERAL(new Category("General", ""), Permissions.NONE),
+    //GENERAL(new Category("General", ""), Permissions.NONE),
     SUPPORT(new Category("Support", "Support Staff Features"), Permissions.SUPPORT),
     MODERATION(new Category("Moderation", "Moderator features"), Permissions.MODERATOR),
     INTERNAL(new Category("Internal", "internal helper functions"), Permissions.NONE);

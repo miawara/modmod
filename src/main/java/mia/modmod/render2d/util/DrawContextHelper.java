@@ -4,8 +4,12 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import mia.modmod.ColorBank;
 import mia.modmod.Mod;
+import mia.modmod.mixin.render.RenderTypeAccessor;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.renderer.rendertype.LayeringTransform;
+import net.minecraft.client.renderer.rendertype.RenderSetup;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.PlayerSkin;
@@ -14,8 +18,19 @@ import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 
 import java.util.List;
+import java.util.Locale;
 
 public class DrawContextHelper {
+    public static final RenderType LINE = RenderTypeAccessor.of(
+            RenderPipelines.LINES_TRANSLUCENT.getClass().getSimpleName().toLowerCase(Locale.ROOT),
+            RenderSetup.builder(RenderPipelines.LINES_TRANSLUCENT)
+                    .sortOnUpload()
+                    .useLightmap()
+                    .useOverlay()
+                    .setLayeringTransform(LayeringTransform.VIEW_OFFSET_Z_LAYERING)
+                    .createRenderSetup()
+    );
+
     public static void drawRect(GuiGraphics context, int x, int y, int width, int height, ARGB color) {
         context.fill(x,y,x+width,y+height,color.getARGB());
     }
@@ -89,17 +104,18 @@ public class DrawContextHelper {
 
 
 
-    private void drawHitbox(PoseStack.Pose pose, VertexConsumer vertexConsumer, Vec3 cameraPos, AABB hitbox, int color, float width) {
+    public static void drawWireframe(PoseStack.Pose pose, VertexConsumer vertexConsumer, Vec3 cameraPos, AABB hitbox, int color, float width) {
         List<Line> lines = RenderContextHelper.getBoundBoxWireframe(hitbox);
         for (Line line : lines) drawLine(pose, vertexConsumer, cameraPos, line, color, width);
     }
 
-    private void drawLine(PoseStack.Pose pose, VertexConsumer vertexConsumer, Vec3 cameraPos, Line line, int color, float width) {
+    public static void drawLine(PoseStack.Pose pose, VertexConsumer vertexConsumer, Vec3 cameraPos, Line line, int color, float width) {
         drawLine(pose, vertexConsumer, cameraPos, line.start().toVector3f(), line.end().toVector3f(), color, width);
     }
 
-    private void drawLine(PoseStack.Pose pose, VertexConsumer vertexConsumer, Vec3 cameraPos, Vector3f v1, Vector3f v2, int color, float width) {
-        Vector3f normal = cameraPos.toVector3f().sub(v1).normalize();
+    public static void drawLine(PoseStack.Pose pose, VertexConsumer vertexConsumer, Vec3 cameraPos, Vector3f v1, Vector3f v2, int color, float width) {
+        Vector3f normal = new Vector3f(v2).sub(v1).normalize();
+        //Vector3f normal = cameraPos.toVector3f().sub(v1).normalize();
 
         vertexConsumer.addVertex(pose, v1)
                 .setColor(color)
