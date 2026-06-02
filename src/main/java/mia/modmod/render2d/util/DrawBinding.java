@@ -3,8 +3,8 @@ package mia.modmod.render2d.util;
 import org.joml.Vector2i;
 
 public class DrawBinding {
-    private final AxisBinding xBinding;
-    private final AxisBinding yBinding;
+    public final AxisBinding xBinding;
+    public final AxisBinding yBinding;
     public DrawBinding(AxisBinding xBinding, AxisBinding yBinding) {
         this.xBinding = xBinding;
         this.yBinding = yBinding;
@@ -18,4 +18,5 @@ public class DrawBinding {
 
     public static final DrawBinding NONE = new DrawBinding(AxisBinding.NONE, AxisBinding.NONE);
     public static final DrawBinding MIDDLE_MIDDLE = new DrawBinding(AxisBinding.MIDDLE, AxisBinding.MIDDLE);
+    public static final DrawBinding NONE_MIDDLE = new DrawBinding(AxisBinding.NONE, AxisBinding.MIDDLE);
 }

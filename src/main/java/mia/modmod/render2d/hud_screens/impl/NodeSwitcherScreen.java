@@ -15,53 +15,105 @@ import org.joml.Vector2d;
 import org.joml.Vector2i;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Optional;
+import java.util.*;
 
 public class NodeSwitcherScreen extends InGameHudScreen {
-    private DrawObject screenContainer;
-    private ArrayList<DrawButton> buttons = new ArrayList<>();
-    private ArrayList<DrawVerticalScrollContainer> scrollContainers = new ArrayList<>();
+    private DrawObject screenContainer, mainContainer;
+    private ArrayList<DrawButton> buttons;
+    private ArrayList<DrawVerticalScrollContainer> scrollContainers;
 
-    public NodeSwitcherScreen() { }
+    public NodeSwitcherScreen() {
+        super();
+    }
 
     @Override
     protected void init() {
         Vector2i mouse = new Vector2i((int)getMouseX(), (int)getMouseY());
         Vector2i screen = new Vector2i(Mod.getScaledWindowWidth(), Mod.getScaledWindowHeight());
         this.buttons = new ArrayList<>();
-        //this.scrollContainers = new DrawVerticalScrollContainer();
+        this.scrollContainers = new ArrayList<>();
 
-        screenContainer = new DrawRect(new Vector2i(0,0), screen,  new ARGB(ColorBank.BLACK, 0f));
+        screenContainer = new DrawRect(new Vector2i(0,0), screen,  new ARGB(ColorBank.BLACK, 0.0f));
 
-        Optional<HashMap<NodeCategory, ArrayList<String>>> optionalNodeCategories = LocationAPI.getNodeCategories();
+        Optional<LinkedHashMap<NodeCategory, ArrayList<String>>> optionalNodeCategories = LocationAPI.getNodeCategories();
 
         if (optionalNodeCategories.isPresent()) {
-            HashMap<NodeCategory, ArrayList<String>> nodeCategories = optionalNodeCategories.get();
+            LinkedHashMap<NodeCategory, ArrayList<String>> nodeCategories = optionalNodeCategories.get();
+            LinkedHashMap<NodeCategory, DrawVerticalScrollContainer> nodeDrawContainers = new LinkedHashMap<>();
 
-            ArrayList<String> mainNodes = nodeCategories.get(NodeCategory.MAIN);
-            ArrayList<String> privateNodes = nodeCategories.get(NodeCategory.PRIVATE);
-            ArrayList<String> devNodes = nodeCategories.get(NodeCategory.DEV);
-            ArrayList<String> miscEvent = nodeCategories.get(NodeCategory.MISC_EVENT);
+            int nodeOptionWidth = 100;
+            int nodeButtonMargin = 4;
+            int nodeOptionHeight = Mod.MC.font.lineHeight + (nodeButtonMargin*2);
+            int maxDisplayNodes = 15;
+            int containerMargin = 4;
 
-            Mod.message(mainNodes.toString());
-            Mod.message(privateNodes.toString());
-            Mod.message(devNodes.toString());
-            Mod.message(miscEvent.toString());
+            mainContainer = new DrawRect(new Vector2i(0,0), new Vector2i((nodeOptionWidth * (nodeCategories.size())) + (containerMargin+(nodeCategories.size())),nodeOptionHeight * (maxDisplayNodes+1)),  new ARGB(ColorBank.BLACK, 0.0f), screenContainer);
+            mainContainer.setParentBinding(DrawBinding.MIDDLE_MIDDLE);
+            mainContainer.setSelfBinding(DrawBinding.MIDDLE_MIDDLE);
 
+            int index = 0;
+            for (NodeCategory category : List.of(NodeCategory.DEV, NodeCategory.MAIN, NodeCategory.PRIVATE, NodeCategory.MISC_EVENT))  {
+                ArrayList<String> nodes = nodeCategories.get(category);
 
-            DrawRect mainNodeContainer = new DrawRect(new Vector2i(0,0), new Vector2i(300,100),  new ARGB(ColorBank.BLACK, 0.45f), screenContainer);
-            mainNodeContainer.setSelfBinding(DrawBinding.MIDDLE_MIDDLE);
-            mainNodeContainer.setParentBinding(DrawBinding.MIDDLE_MIDDLE);
+                DrawRect header = new DrawRect(
+                        new Vector2i((nodeOptionWidth * index) + (index * containerMargin), 0),
+                        new Vector2i(nodeOptionWidth, nodeOptionHeight),
+                        new ARGB(category.getColor(), 0.8f),
+                        mainContainer
+                );
+                DrawText headerText = new DrawText(
+                        new Vector2i(nodeButtonMargin,0),
+                        Component.literal(category.getName()).withColor(ColorBank.WHITE),
+                        1f,
+                        true,
+                        header
+                );
+                headerText.setParentBinding(AxisBinding.NONE, AxisBinding.MIDDLE);
+                headerText.setSelfBinding(AxisBinding.NONE, AxisBinding.MIDDLE);
 
+                DrawVerticalScrollContainer nodeTypeContainer = new DrawVerticalScrollContainer(
+                        new Vector2i(0,0),
+                        new Vector2i(nodeOptionWidth, nodeOptionHeight * maxDisplayNodes),
+                        new ARGB(ColorBank.BLACK, 0.35f),
+                        header
+                );
+                nodeTypeContainer.setParentBinding(AxisBinding.NONE, AxisBinding.FULL);
 
+                int yoffset = 0;
+                for (String nodeID : nodes) {
+                    DrawButton nodeButton = new DrawButton(
+                            new Vector2i(0, yoffset),
+                            new Vector2i(nodeOptionWidth, nodeOptionHeight),
+                            new ARGB(ColorBank.BLACK, 0.6f),
+                            new ARGB(ColorBank.MC_GRAY, 0.8f)
+                    );
 
+                    nodeButton.setCallback(() -> {
+                        close();
+                        Mod.sendCommand("/server " + nodeID);
+                    });
+                    buttons.add(nodeButton);
 
+                    DrawText nodeText = new DrawText(
+                            new Vector2i(nodeButtonMargin,0),
+                            Component.literal(nodeID).withColor(ColorBank.WHITE_GRAY),
+                            1f,
+                            true,
+                            nodeButton
+                    );
+                    yoffset += nodeOptionHeight;
+                    nodeText.setParentBinding(AxisBinding.NONE, AxisBinding.MIDDLE);
+                    nodeText.setSelfBinding(AxisBinding.NONE, AxisBinding.MIDDLE);
+                    nodeTypeContainer.addContent(nodeButton);
+                }
+
+                scrollContainers.add(nodeTypeContainer);
+                index++;
+            }
         } else {
             DrawText errorText = new DrawText(
                     new Vector2i(0,0),
-                    Component.literal("Error: node list is null").withColor(ColorBank.MC_RED),
+                    Component.literal("Error: Haven't received node list from server yet").withColor(ColorBank.MC_RED),
                     1f,
                     true,
                     screenContainer
@@ -73,19 +125,25 @@ public class NodeSwitcherScreen extends InGameHudScreen {
     @Override
     public void onMouseButton(long l, MouseButtonEvent mouseButtonEvent, int i, CallbackInfo ci) {
         super.onMouseButton(l, mouseButtonEvent, i, ci);
-        for (DrawButton button : buttons) button.mouseClick(mouseButtonEvent, false);
+        if (i == 1) for (DrawButton button : buttons) button.mouseClick(mouseButtonEvent, false);
     }
 
 
     @Override
     public void onScroll(long l, double scrollX, double scrollY, CallbackInfo ci) {
         super.onScroll(l,scrollX,scrollY,ci);
-        for (DrawVerticalScrollContainer scrollContainer : scrollContainers) scrollContainer.scroll(new Vector2i((int) getMouseX(), (int) getMouseY()), new Vector2d(scrollX, scrollY));
+        if (mainContainer != null) {
+            if (mainContainer.containsPoint(getMouseX(), getMouseY())) {
+                for (DrawVerticalScrollContainer scrollContainer : scrollContainers) {
+                    scrollContainer.scroll(new Vector2i((int) getMouseX(), (int) getMouseY()), new Vector2d(scrollX, scrollY));
+                }
+            }
+        }
+
     };
 
     @Override
     public void onRender(GuiGraphics context, DeltaTracker deltaTracker, CallbackInfo ci) {
-        // render2d screen
         screenContainer.render(context, (int) getMouseX(), (int) getMouseY());
     }
 

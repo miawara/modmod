@@ -3,7 +3,6 @@ package mia.modmod.features.impl.moderation.reports;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import mia.modmod.ColorBank;
-import mia.modmod.Mod;
 import mia.modmod.core.StreamUtils;
 import mia.modmod.features.Categories;
 import mia.modmod.features.Feature;
@@ -33,7 +32,7 @@ import java.util.regex.Pattern;
 public final class ReportTeleport extends Feature implements ChatEventListener, RegisterCommandListener, TickEvent {
     public static final Pattern REPORT_PATTERN = Pattern.compile("^! Incoming Report \\(([A-Za-z0-9_]{3,16})\\)\\n\\|  Offender: ([A-Za-z0-9_]{3,16})\\n\\|  Offense: (.*)\\n\\|  Location: (Private |)(.*) (\\d*) ((?:Mode|Spawn|Existing).*)$");
 
-    private static BooleanDataField msgOnReportTeleport, runalts, trackPlayer, requestHistory;
+    private static BooleanDataField runalts, trackPlayer, requestHistory;
 
     public static boolean requestingHistory = false;
     private static boolean isInternalReportTeleport = false;
@@ -46,7 +45,6 @@ public final class ReportTeleport extends Feature implements ChatEventListener, 
     public ReportTeleport(Categories category) {
         super(category, "Report Teleport", "reportteleport", "Click on report msgs to teleport the offender.");
         runalts = new BooleanDataField("Run /alts", "Runs /alts when you click on a report", ParameterIdentifier.of(this, "runalts"), true, true);
-        msgOnReportTeleport = new BooleanDataField("Send Report Handled Message", "Send an automated message when you click on a new report\n\n'" + HASH_PREFIX + "$HASH' $HASH is a hash of the report.\n\nOther mods using " + Mod.MOD_ID + " will mark the report with the same hash as handled.", ParameterIdentifier.of(this, "report_msg_hash"), false, true);
         trackPlayer  = new BooleanDataField("Track Report Offender", "Adds player to tracker when report is clicked on", ParameterIdentifier.of(this, "track_player"), true, true);
         requestHistory = new BooleanDataField("Get Offender History", "Automatically requests offender's history when report is clicked on", ParameterIdentifier.of(this, "request_history"), true, true);
 
@@ -122,11 +120,6 @@ public final class ReportTeleport extends Feature implements ChatEventListener, 
 
     }
 
-    public static void sendModChatReportHash(int hashcode) {
-        if (FeatureManager.getFeature(ReportTeleport.class).msgOnReportTeleport.getValue()) {
-            CommandScheduler.addCommand(new ScheduledCommand("mb " + HASH_PREFIX + hashcode));
-        }
-    }
 
     @Override
     public void register(CommandDispatcher<FabricClientCommandSource> dispatcher, CommandBuildContext registryAccess) {
@@ -143,7 +136,6 @@ public final class ReportTeleport extends Feature implements ChatEventListener, 
                                 if (!report.handled()) {
                                     if (report.getReportHash() == Integer.parseInt(hashcode)) {
                                         report.setHandled(true);
-                                        sendModChatReportHash(report.getReportHash());
                                         break;
                                     }
                                 }

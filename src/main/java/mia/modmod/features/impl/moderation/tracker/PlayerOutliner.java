@@ -10,7 +10,6 @@ import mia.modmod.features.listeners.impl.*;
 import mia.modmod.features.parameters.ParameterIdentifier;
 import mia.modmod.features.parameters.impl.BooleanDataField;
 import mia.modmod.features.parameters.impl.ColorDataField;
-import mia.modmod.mixin.render.RenderTypeAccessor;
 import mia.modmod.render2d.util.*;
 import mia.modmod.render2d.util.elements.DrawRect;
 import mia.modmod.render2d.util.elements.DrawText;
@@ -20,11 +19,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.multiplayer.PlayerInfo;
-import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.culling.Frustum;
-import net.minecraft.client.renderer.rendertype.LayeringTransform;
-import net.minecraft.client.renderer.rendertype.RenderSetup;
-import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.entity.player.Player;
@@ -53,6 +48,7 @@ public final class PlayerOutliner extends Feature implements RenderHUD, ServerCo
 
     @Override
     public void renderHUD(GuiGraphics context, DeltaTracker tickCounter) {
+        if (ServerManager.isNotOnDiamondFire()) return;
         renderTrackerList(context, tickCounter);
         renderPlayerOutlines(context, tickCounter);
     }
@@ -78,7 +74,7 @@ public final class PlayerOutliner extends Feature implements RenderHUD, ServerCo
                 playerInfoHashMap.put(playerInfo.getProfile().name(), playerInfo);
             }));
 
-            Component playerText = Component.literal(player + " ").withColor(0xed7aff).append(online ? getLatencyText(player) : Component.literal("0ms").withColor(ColorBank.MC_GRAY)).append(Component.literal(" " + (online ? "online" : "offline")).withColor(onlineColor));
+            Component playerText = Component.literal(player + " ").withColor(outlinerColor.getRGB()).append(online ? getLatencyText(player) : Component.literal("0ms").withColor(ColorBank.MC_GRAY)).append(Component.literal(" " + (online ? "online" : "offline")).withColor(onlineColor));
 
             Vector2i playerContainerPosition = container.getPosition().add(new Vector2i(0,(eachHeight+1) * (i + 1)));
             Vector2i playerContainerSize = new Vector2i(Mod.MC.font.width(playerText.getString()) + (margin + 1) * 2, eachHeight);

@@ -8,10 +8,8 @@ import org.joml.Vector2i;
 
 import java.util.ArrayList;
 
-// todo: replace class initializer with builder based widget system, also move rendering code into its own library for use in my other mods
-
 public abstract class DrawObject {
-    protected Vector2i position, size;
+    protected Vector2i position, renderOffset, size;
 
     protected DrawObject parent;
     protected ArrayList<DrawObject> drawables;
@@ -28,6 +26,11 @@ public abstract class DrawObject {
     public void setParentBinding(DrawBinding binding) { this.parentBinding = binding; }
     public void setSelfBinding(DrawBinding binding) { this.selfBinding = binding; }
 
+    public void setParentBinding(AxisBinding xb, AxisBinding yb) { this.parentBinding = new DrawBinding(xb, yb); }
+    public void setSelfBinding(AxisBinding xb, AxisBinding yb) { this.selfBinding = new DrawBinding(xb, yb); }
+
+    public void setRenderOffset(Vector2i offset) { this.renderOffset = offset; }
+
     public void setParent(DrawObject parent) { this.parent = parent; }
     public void addDrawable(DrawObject child) { drawables.add(child); child.setParent(this); }
     public void clearDrawables() { drawables.clear(); }
@@ -40,9 +43,9 @@ public abstract class DrawObject {
     public Vector2i getRawPosition() { return position; }
 
     public Vector2i getPosition() {
-        return ((parent != null) ?
+        return (((parent != null) ?
                 new Vector2i(getRawPosition()).add(parent.getPosition().add(parentBinding == null ? new Vector2i(0, 0) : parentBinding.pointMultiply(parent.getSize())))
-                : new Vector2i(getRawPosition())).add(selfBinding == null ? new Vector2i(0, 0) : selfBinding.pointMultiply(this.getSize().mul(-1, -1)));
+                : new Vector2i(getRawPosition())).add(selfBinding == null ? new Vector2i(0, 0) : selfBinding.pointMultiply(this.getSize().mul(-1, -1)))).add(renderOffset == null ? new Vector2i(0,0) : renderOffset);
     }
 
     public int x1() { return getPosition().x(); }

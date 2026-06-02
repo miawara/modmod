@@ -1,6 +1,5 @@
 package mia.modmod.features.impl.moderation.reports;
 
-import mia.modmod.ColorBank;
 import mia.modmod.Mod;
 import mia.modmod.core.KeyBindCategories;
 import mia.modmod.features.Categories;
@@ -13,7 +12,7 @@ import mia.modmod.features.listeners.impl.RegisterKeyBindEvent;
 import mia.modmod.features.listeners.impl.RenderHUD;
 import mia.modmod.features.listeners.impl.TickEvent;
 import mia.modmod.render2d.util.animation.AnimationStage;
-import mia.modmod.render2d.screens.impl.ReportScreen;
+import mia.modmod.render2d.screens.ReportScreen;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.KeyMapping;
@@ -24,7 +23,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.ArrayList;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public final class ReportTracker extends Feature implements RegisterKeyBindEvent, TickEvent, RenderHUD, ChatEventListener {
     public KeyMapping openQA;
@@ -57,23 +55,6 @@ public final class ReportTracker extends Feature implements RegisterKeyBindEvent
             reports.addFirst(new DatedReport(reporter, offender, offense, private_text, node_text, node_number, mode, timestamp));
         }
 
-        Matcher mbMatcher = Pattern.compile("^\\[MOD] ([a-zA-Z0-9_]{3,16}): " + ReportTeleport.HASH_PREFIX + "(\\d+)").matcher(content);
-        if (mbMatcher.find()) {
-            if (!mbMatcher.group(1).equals(Mod.getPlayerName())) {
-                for (DatedReport report : reports) {
-                    if (!report.handled() && report.getReportHash() == Integer.parseInt(mbMatcher.group(2))) {
-                        report.setHandled(true);
-                        Mod.message(
-                                Component.literal("Report ").withColor(ColorBank.WHITE)
-                                        .append(Component.literal("ID=" + report.getReportHash()).withColor(ColorBank.WHITE_GRAY))
-                                        .append(Component.literal(" set to ").withColor(ColorBank.WHITE))
-                                        .append(Component.literal("Handled").withColor(ColorBank.MC_GREEN))
-                        );
-                        break;
-                    }
-                }
-            }
-        }
         return message.pass();
     }
 

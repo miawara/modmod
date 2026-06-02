@@ -11,7 +11,7 @@ import mia.modmod.features.listeners.impl.TickEvent;
 import mia.modmod.features.parameters.ParameterIdentifier;
 import mia.modmod.features.parameters.impl.BooleanDataField;
 import mia.modmod.render2d.util.animation.AnimationStage;
-import mia.modmod.render2d.screens.impl.ModQAScreen;
+import mia.modmod.render2d.screens.ModQAScreen;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.KeyMapping;

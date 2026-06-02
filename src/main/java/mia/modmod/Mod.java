@@ -12,14 +12,11 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
-import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
-import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
 import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
-import net.minecraft.resources.Identifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -94,10 +91,7 @@ public class Mod implements ClientModInitializer {
 			return;
 		}
 		Mod.MC.execute(() -> {
-			Mod.MC.player.displayClientMessage(Component.empty()
-				.append(Component.literal(MOD_ID + " ").withColor(id_color))
-				.append(Component.literal("᛬ ").withColor(0x9c9c9c))
-				.append(message.copy()), false);
+			Mod.MC.player.displayClientMessage(message.copy(), false);
 		});
 
 	}

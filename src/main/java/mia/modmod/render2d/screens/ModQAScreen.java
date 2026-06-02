@@ -1,4 +1,4 @@
-package mia.modmod.render2d.screens.impl;
+package mia.modmod.render2d.screens;
 
 import mia.modmod.ColorBank;
 import mia.modmod.Mod;
@@ -58,8 +58,8 @@ public class ModQAScreen extends Screen {
         this.buttons = new ArrayList<>();
 
         int mainColor = ColorBank.BLACK;
-        int buttonColor = 0x1f1f1f;
-        int enabledColor = 0x3d3d3d;
+        int buttonColor = 0x3d3d3d;
+        int enabledColor = ColorBank.MC_GRAY;
 
         DrawRect mainContainer = new DrawRect(new Vector2i((int) (screen.x*0.5f), (int) (screen.y*0.5f)).add((int)(50*(1-animation.getProgress())),0), new Vector2i(mainContainerWidth, mainContainerHeight),  new ARGB(ColorBank.BLACK, 0.3f * animation.getProgress()));
         mainContainer.setSelfBinding(new DrawBinding(AxisBinding.MIDDLE, AxisBinding.MIDDLE));
@@ -368,7 +368,7 @@ public class ModQAScreen extends Screen {
 
                     optionButton.setCallback(() -> {
                         if (selectedPlayer.equals(Mod.getPlayerName()) && FeatureManager.getFeature(ModQA.class).safetyMode.getValue()) {
-                            Mod.messageError("hey stop that (Safety Mode Active)");
+                            Mod.messageError("no (Safety Mode Active)");
                             return;
                         }
 

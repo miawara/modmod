@@ -29,6 +29,7 @@ public final class CommandScheduler extends Feature implements TickEvent, Server
     private static ArrayList<ChatConsumer> chatConsumers;
     private static ArrayList<SoundEvent> soundHiders;
     private static long nextTimestamp;
+    private static boolean joinMutex;
 
     public CommandScheduler(Categories category) {
         super(category, "Command Scheduler", "cmd_scheduler", "Schedules non-player executed commands.");
@@ -62,18 +63,6 @@ public final class CommandScheduler extends Feature implements TickEvent, Server
         scheduledCommands.clear();
     }
 
-    public static long getMaxCommandDelay() {
-        long delay = 0L;
-
-        for (ScheduledCommand scheduledCommand : scheduledCommands) {
-            delay += scheduledCommand.getDelay();
-        }
-
-        return delay;
-    }
-
-    public static ArrayList<ScheduledCommand> getScheduledCommands() { return scheduledCommands; }
-
     @Override
     public ModifiableEventResult<Component> chatEvent(ModifiableEventData<Component> message, CallbackInfo ci) {
         String content = message.base().getString();
@@ -96,6 +85,7 @@ public final class CommandScheduler extends Feature implements TickEvent, Server
     @Override
     public void tickR(int tick) {
         if (!ServerManager.isOnDiamondFire()) return;
+        if (!joinMutex) return;
 
         long currentTimestamp = System.currentTimeMillis();
 
@@ -151,12 +141,13 @@ public final class CommandScheduler extends Feature implements TickEvent, Server
 
     @Override
     public void DFConnectJoin(ClientPacketListener networkHandler) {
-        nextTimestamp = System.currentTimeMillis() + 250L;
+        nextTimestamp = System.currentTimeMillis() + 750L;
+        joinMutex = true;
     }
 
     @Override
     public void DFConnectDisconnect(ClientPacketListener networkHandler) {
-
+        joinMutex = false;
     }
 
     @Override
@@ -169,7 +160,6 @@ public final class CommandScheduler extends Feature implements TickEvent, Server
                             Mod.message(Component.literal(" " + scheduledCommand.command())
                                     .append(Component.literal(" : ").withColor(ColorBank.MC_GRAY))
                                     .append(Component.literal(scheduledCommand.delay() + "ms").withColor(ColorBank.MC_GRAY))
-
                             );
                         }
                     } else {
@@ -183,13 +173,14 @@ public final class CommandScheduler extends Feature implements TickEvent, Server
 
     @Override
     public void receivePacket(Packet<?> packet, CallbackInfo ci) {
+        if (!joinMutex) return;
         if (packet instanceof ClientboundSoundPacket playSoundS2CPacket) {
             for (SoundEvent soundEvent : soundHiders) {
                 if (playSoundS2CPacket.getSound().value().equals(soundEvent)) {
                     soundHiders.remove(soundEvent);
                     ci.cancel();
                     break;
-                };
+                }
             }
 
         }

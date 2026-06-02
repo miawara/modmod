@@ -1,7 +1,9 @@
 package mia.modmod.features;
 
+import mia.modmod.features.impl.general.CPUDisplay;
 import mia.modmod.features.impl.general.NodeSwitcher;
-import mia.modmod.features.impl.moderation.ClickTP;
+import mia.modmod.features.impl.general.tags.ItemLorePeeker;
+import mia.modmod.features.impl.general.tags.ItemTagViewer;
 import mia.modmod.features.impl.support.SessionSpyMessages;
 import mia.modmod.features.impl.internal.ConfigScreenFeature;
 import mia.modmod.features.impl.internal.permissions.PermissionTracker;
@@ -42,7 +44,10 @@ public final class FeatureManager {
     }
 
     private static void initFeatures() {
-        //add(new NodeSwitcher(Categories.GENERAL));
+        add(new NodeSwitcher(Categories.GENERAL));
+        add(new CPUDisplay(Categories.GENERAL));
+        add(new ItemTagViewer(Categories.GENERAL));
+        add(new ItemLorePeeker(Categories.GENERAL));
 
         add(new SessionSpyMessages(Categories.SUPPORT));
         add(new AutoQueue(Categories.SUPPORT));
@@ -55,7 +60,6 @@ public final class FeatureManager {
         add(new PlayerOutliner(Categories.MODERATION));
         add(new ModQA(Categories.MODERATION));
         add(new ReportTracker(Categories.MODERATION));
-        //add(new ClickTP(Categories.MODERATION));
 
         initInternalFeatures();
     }

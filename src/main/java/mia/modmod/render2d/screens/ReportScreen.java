@@ -1,4 +1,4 @@
-package mia.modmod.render2d.screens.impl;
+package mia.modmod.render2d.screens;
 
 import mia.modmod.ColorBank;
 import mia.modmod.Mod;
@@ -198,10 +198,8 @@ public class ReportScreen extends Screen {
             reportButtons.add(reportButton);
             buttons.add(reportButton);
             reportButton.setCallback(() -> {
-                if (!report.handled()) {
-                    report.setHandled(true);
-                    ReportTeleport.sendModChatReportHash(report.getReportHash());
-                }
+                report.setHandled(true);
+
                 ReportTeleport.internalReportTeleport(report.offender(), report.nodeIdentifier());
 
                 onClose();
@@ -227,16 +225,6 @@ public class ReportScreen extends Screen {
             );
             handledStatus.setParentBinding(new DrawBinding(AxisBinding.FULL, AxisBinding.NONE));
             handledStatus.setSelfBinding(new DrawBinding(AxisBinding.FULL, AxisBinding.NONE));
-
-            DrawText idText = new DrawText(
-                    new Vector2i(0, 0),
-                    Component.literal("ID=" + report.getReportHash()).withColor(ColorBank.MC_GRAY),
-                    animation.getProgress(),
-                    true,
-                    handledStatus
-            );
-            idText.setParentBinding(new DrawBinding(AxisBinding.FULL, AxisBinding.FULL));
-            idText.setSelfBinding(new DrawBinding(AxisBinding.FULL, AxisBinding.NONE));
 
             int j = 0;
             for (Component line : reportText) {
@@ -278,7 +266,7 @@ public class ReportScreen extends Screen {
                         0,
                         reportDelta()
                 );
-            };
+            }
         };
         sliderContainer.setParentBinding(new DrawBinding(AxisBinding.FULL, AxisBinding.NONE));
         buttons.add(sliderContainer);

@@ -34,7 +34,7 @@ public final class LocationAPI extends Feature implements ChatEventListener, Ser
 
     private static int serverListCommandCompletionRequestPacketID = 10000000;
     private static ArrayList<String> nodeStringList;
-    private static HashMap<NodeCategory, ArrayList<String>> nodes;
+    private static LinkedHashMap<NodeCategory, ArrayList<String>> nodes;
 
 
 
@@ -51,7 +51,7 @@ public final class LocationAPI extends Feature implements ChatEventListener, Ser
     }
 
     public static @NotNull Optional<ArrayList<String>> getRawNodeList() { return Optional.ofNullable(nodeStringList); }
-    public static @NotNull Optional<HashMap<NodeCategory, ArrayList<String>>> getNodeCategories() { return Optional.ofNullable(nodes); };
+    public static @NotNull Optional<LinkedHashMap<NodeCategory, ArrayList<String>>> getNodeCategories() { return Optional.ofNullable(nodes); }
 
     @Override
     public ModifiableEventResult<Component> chatEvent(ModifiableEventData<Component> message, CallbackInfo ci) {
@@ -103,7 +103,7 @@ public final class LocationAPI extends Feature implements ChatEventListener, Ser
         if (packet instanceof ClientboundCommandSuggestionsPacket commandSuggestionsPacket) {
             if (commandSuggestionsPacket.id() != serverListCommandCompletionRequestPacketID) return;
             nodeStringList = commandSuggestionsPacket.suggestions().stream().map(ClientboundCommandSuggestionsPacket.Entry::text).collect(Collectors.toCollection(ArrayList::new));
-            nodes = new HashMap<>();
+            nodes = new LinkedHashMap<>();
             ArrayList<String> remainingNodes = new ArrayList<>(nodeStringList);
             for (NodeCategory nodeCategory : NodeCategory.values()) {
                 ArrayList<String> totalMatchedNodes = new ArrayList<>();
